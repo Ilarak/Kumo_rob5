@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="spider">
+
+<!-- Constants for robot dimensions -->
+<xacro:property name="PI" value="3.1415926535897931"/>
+<xacro:property name="scale" value="0.001" />
+<xacro:property name="d_x_boite_patte_centre" value="${61.49*scale}" />
+<xacro:property name="r_z_boite_patte_ext" value="${47.6*PI/180}" />
+<xacro:property name="d_x_boite_patte_ext" value="${38.208*scale}" />
+<xacro:property name="d_y_boite_patte_ext" value="${95.665*scale}" />
+<xacro:property name="hauteur" value="200"/>
+
+
+<xacro:property name="d_A_B" value="${58.67*scale}" />
+<xacro:property name="d_B_C" value="${53.0*scale}" />
+<xacro:property name="d_C_D" value="${84.16*scale}" />
+
+<xacro:macro name="patte" params="nb_patte pos_x pos_y rot_z">
+  <xacro:une_partie_patte name="patte_${nb_patte}A" mesh_name="A" d_z="0" r_z="${PI/2}" col="0.05"/>
+  <xacro:joint_fix name1="base_link" name2="patte_${nb_patte}A" d_x="${pos_x}" d_y="${pos_y}" d_z="${hauteur*scale}" r_x="0" r_y="0" r_z="${rot_z}"/>
+  <xacro:une_partie_patte name="patte_${nb_patte}B" mesh_name="B" d_z="0" r_z="${PI/2}" col="0.05"/>
+  <xacro:joint_rot name1="patte_${nb_patte}A" name2="patte_${nb_patte}B" d_x="${d_A_B}" d_y="0" d_z="0" r_x="0" r_y="0" r_z="0" axe_y="0" axe_z="1"/>
+
+  <xacro:une_partie_patte name="patte_${nb_patte}C" mesh_name="C" d_z="${-27.44*scale}" r_z="${PI/2}" col="0.05"/>
+  <xacro:joint_rot name1="patte_${nb_patte}B" name2="patte_${nb_patte}C" d_x="${d_B_C}" d_y="0" d_z="${scale*27.44}" r_x="0" r_y="0" r_z="0" axe_y="-1" axe_z="0"/>
+
+  <xacro:une_partie_patte name="patte_${nb_patte}D" mesh_name="D" d_z="${-27.44*scale}" r_z="${PI/2}" col="0.05"/>
+  <xacro:joint_rot name1="patte_${nb_patte}C" name2="patte_${nb_patte}D" d_x="${d_C_D}" d_y="0" d_z="0" r_x="0" r_y="0" r_z="0" axe_y="-1" axe_z="0"/>
+
+
+</xacro:macro>
+
+<xacro:macro name="une_partie_patte" params="name mesh_name d_z r_z col">
+  <link name="${name}">
+      <collision>
+        <origin xyz="0 0 ${d_z}" rpy="0 0 ${r_z}"/>
+        <geometry>
+          <!--<box size="${col} ${col} ${col}"/>-->
+          <mesh filename="package://description_kumo/meshes/${mesh_name}.obj" scale="${scale} ${scale} ${scale}"/>
+        </geometry>
+      </collision>
+      
+      <visual>
+        <origin xyz="0 0 ${d_z}" rpy="0 0 ${r_z}"/>
+        <geometry>
+          <mesh filename="package://description_kumo/meshes/${mesh_name}.obj" scale="${scale} ${scale} ${scale}"/>
+        </geometry>
+        <material name="gray">
+          <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      <inertial>
+        <mass value="0.05"/>
+		    <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+    </link>
+</xacro:macro>
+
+<xacro:macro name="corps_" params="name mesh_name d_z r_z col">
+  <link name="${name}">
+      <collision>
+        <origin xyz="0 0 ${d_z}" rpy="0 0 ${r_z}"/>
+        <geometry>
+          <box size="0.1 0.1 0.1"/>
+        </geometry>
+      </collision>
+      
+      <visual>
+        <origin xyz="0 0 ${d_z}" rpy="0 0 ${r_z}"/>
+        <geometry>
+          <mesh filename="package://description_kumo/meshes/${mesh_name}.obj" scale="${scale} ${scale} ${scale}"/>
+        </geometry>
+        <material name="gray">
+          <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      <inertial>
+        <mass value="2"/>
+		    <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01"/>
+    </inertial>
+    </link>
+</xacro:macro>
+
+<xacro:macro name="joint_rot" params="name1 name2 d_x d_y d_z r_x r_y r_z axe_y axe_z">
+  <joint name="joint_${name1}_${name2}" type="revolute">
+    <parent link="${name1}"/>
+    <child link="${name2}"/>
+    <origin xyz = "${d_x} ${d_y} ${d_z}" rpy = "${r_x} ${r_y} ${r_z}"/> 
+    <axis xyz = "0 ${axe_y} ${axe_z}"/>
+    <!--<limit lower="${-PI/2}" upper="${PI/2}" effort="13" velocity="0.001"/>-->
+    <limit lower="${-PI}" upper="${PI}" effort="100" velocity="1000"/>
+  </joint>
+</xacro:macro>
+
+  <xacro:macro name = "controlJoint" params="nb_patte joint1 joint2 initialValue">
+    <joint name="joint_patte_${nb_patte}${joint1}_patte_${nb_patte}${joint2}">
+      <command_interface name="position">
+        <param name="min">-3.14</param>
+        <param name="max">3.14</param>
+      </command_interface>
+      <state_interface name="position">
+        <param name="initial_value">${initialValue}</param>
+      </state_interface>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name = "controlPatte" params="nb_patte">
+    <xacro:controlJoint nb_patte="${nb_patte}" joint1 = "A" joint2 = "B" initialValue="0"/>
+    <xacro:controlJoint nb_patte="${nb_patte}" joint1 = "B" joint2 = "C" initialValue="0"/>
+    <xacro:controlJoint nb_patte="${nb_patte}" joint1 = "C" joint2 = "D" initialValue="0"/>
+  </xacro:macro>
+
+<xacro:macro name="joint_fix" params="name1 name2 d_x d_y d_z r_x r_y r_z">
+  <joint name="joint_${name1}_${name2}" type="fixed">
+    <parent link="${name1}"/>
+    <child link="${name2}"/>
+    <origin xyz = "${d_x} ${d_y} ${d_z}" rpy = "${r_x} ${r_y} ${r_z}"/> 
+  </joint>
+</xacro:macro>
+
+
+<xacro:patte nb_patte="1" pos_x="${d_x_boite_patte_ext}" pos_y="${-d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext-PI/2}"/>
+<xacro:patte nb_patte="2" pos_x="${d_x_boite_patte_centre}" pos_y="0.0" rot_z="0.0"/>
+<xacro:patte nb_patte="3" pos_x="${d_x_boite_patte_ext}" pos_y="${d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext}"/>
+<xacro:patte nb_patte="4" pos_x="${-d_x_boite_patte_ext}" pos_y="${-d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext + PI}"/>
+<xacro:patte nb_patte="5" pos_x="${-d_x_boite_patte_centre}" pos_y="0.0" rot_z="${PI}"/>
+<xacro:patte nb_patte="6" pos_x="${-d_x_boite_patte_ext}" pos_y="${d_y_boite_patte_ext}" rot_z="${- r_z_boite_patte_ext + PI}"/>
+
+
+  <link name="test"/>
+  <xacro:corps_ name="base_link" mesh_name="Boite" d_z="${hauteur*scale}" r_z="0" col="0"/>
+
+  <joint name="fixed" type="fixed">
+    <parent link="test"/>
+    <child link="base_link"/>
+  </joint>
+    
+
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>robot_state_publisher</robot_param_node>
+      <parameters>/home/ilarak/kumo_ws/src/description_kumo/config/joint_controller.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+  <ros2_control name="fws" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <xacro:controlPatte nb_patte="1"/>
+    <xacro:controlPatte nb_patte="2"/>
+    <xacro:controlPatte nb_patte="3"/>
+    <xacro:controlPatte nb_patte="4"/>
+    <xacro:controlPatte nb_patte="5"/>
+    <xacro:controlPatte nb_patte="6"/>
+  </ros2_control>
+
+
+  </robot>

@@ -1,0 +1,46 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 1000
+
+    #joint_trajectory_controller:
+    #  type: joint_trajectory_controller/JointTrajectoryController
+    forward_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+      
+
+forward_position_controller:
+  ros__parameters:
+    allow_partial_joints_goal: true
+    joints:
+     - joint_patte_1A_patte_1B
+     - joint_patte_1B_patte_1C
+     - joint_patte_1C_patte_1D
+
+     - joint_patte_2A_patte_2B
+     - joint_patte_2B_patte_2C
+     - joint_patte_2C_patte_2D
+     
+     - joint_patte_3A_patte_3B
+     - joint_patte_3B_patte_3C
+     - joint_patte_3C_patte_3D
+
+     - joint_patte_4A_patte_4B
+     - joint_patte_4B_patte_4C
+     - joint_patte_4C_patte_4D
+
+     - joint_patte_5A_patte_5B
+     - joint_patte_5B_patte_5C
+     - joint_patte_5C_patte_5D
+
+     - joint_patte_6A_patte_6B
+     - joint_patte_6B_patte_6C
+     - joint_patte_6C_patte_6D
+    interface_name: position
+    command_interfaces:
+     - position
+    state_interfaces:
+     - position
+
