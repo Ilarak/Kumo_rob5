@@ -16,22 +16,22 @@
 <xacro:property name="d_B_C" value="${53.0*scale}" />
 <xacro:property name="d_C_D" value="${84.16*scale}" />
 
-<xacro:macro name="patte" params="nb_patte pos_x pos_y rot_z">
-  <xacro:une_partie_patte name="patte_${nb_patte}A" mesh_name="A" d_z="0" r_z="${PI/2}" col="0.05"/>
+<xacro:macro name="patte" params="nb_patte pos_x pos_y rot_z color">
+  <xacro:une_partie_patte name="patte_${nb_patte}A" mesh_name="A" d_z="0" r_z="${PI/2}" col="0.05" color="${color}"/>
   <xacro:joint_fix name1="base_link" name2="patte_${nb_patte}A" d_x="${pos_x}" d_y="${pos_y}" d_z="${hauteur*scale}" r_x="0" r_y="0" r_z="${rot_z}"/>
-  <xacro:une_partie_patte name="patte_${nb_patte}B" mesh_name="B" d_z="0" r_z="${PI/2}" col="0.05"/>
+  <xacro:une_partie_patte name="patte_${nb_patte}B" mesh_name="B" d_z="0" r_z="${PI/2}" col="0.05" color="${color}"/>
   <xacro:joint_rot name1="patte_${nb_patte}A" name2="patte_${nb_patte}B" d_x="${d_A_B}" d_y="0" d_z="0" r_x="0" r_y="0" r_z="0" axe_y="0" axe_z="1"/>
 
-  <xacro:une_partie_patte name="patte_${nb_patte}C" mesh_name="C" d_z="${-27.44*scale}" r_z="${PI/2}" col="0.05"/>
+  <xacro:une_partie_patte name="patte_${nb_patte}C" mesh_name="C" d_z="${-27.44*scale}" r_z="${PI/2}" col="0.05" color="${color}"/>
   <xacro:joint_rot name1="patte_${nb_patte}B" name2="patte_${nb_patte}C" d_x="${d_B_C}" d_y="0" d_z="${scale*27.44}" r_x="0" r_y="0" r_z="0" axe_y="-1" axe_z="0"/>
 
-  <xacro:une_partie_patte name="patte_${nb_patte}D" mesh_name="D" d_z="${-27.44*scale}" r_z="${PI/2}" col="0.05"/>
+  <xacro:une_partie_patte name="patte_${nb_patte}D" mesh_name="D" d_z="${-27.44*scale}" r_z="${PI/2}" col="0.05" color="${color}"/>
   <xacro:joint_rot name1="patte_${nb_patte}C" name2="patte_${nb_patte}D" d_x="${d_C_D}" d_y="0" d_z="0" r_x="0" r_y="0" r_z="0" axe_y="-1" axe_z="0"/>
 
 
 </xacro:macro>
 
-<xacro:macro name="une_partie_patte" params="name mesh_name d_z r_z col">
+<xacro:macro name="une_partie_patte" params="name mesh_name d_z r_z col color">
   <link name="${name}">
       <collision>
         <origin xyz="0 0 ${d_z}" rpy="0 0 ${r_z}"/>
@@ -46,8 +46,16 @@
         <geometry>
           <mesh filename="package://description_kumo/meshes/${mesh_name}.obj" scale="${scale} ${scale} ${scale}"/>
         </geometry>
-        <material name="gray">
-          <color rgba="0.5 0.5 0.5 1.0"/>
+        <material name="${color}">
+          <xacro:if value="${color == 'rouge'}">
+            <color rgba="1 0 0 1.0"/>
+          </xacro:if>
+          <xacro:if value="${color == 'bleu'}">
+            <color rgba="0 0 1 1.0"/>
+          </xacro:if>
+          <xacro:if value="${color == 'noir'}">
+            <color rgba="0.1 0.1 0.1 1.0"/>
+          </xacro:if>
         </material>
       </visual>
       <inertial>
@@ -71,8 +79,8 @@
         <geometry>
           <mesh filename="package://description_kumo/meshes/${mesh_name}.obj" scale="${scale} ${scale} ${scale}"/>
         </geometry>
-        <material name="gray">
-          <color rgba="0.5 0.5 0.5 1.0"/>
+        <material name="gris">
+          <color rgba="0.6 0.6 0.6 1.0"/>
         </material>
       </visual>
       <inertial>
@@ -88,7 +96,6 @@
     <child link="${name2}"/>
     <origin xyz = "${d_x} ${d_y} ${d_z}" rpy = "${r_x} ${r_y} ${r_z}"/> 
     <axis xyz = "0 ${axe_y} ${axe_z}"/>
-    <!--<limit lower="${-PI/2}" upper="${PI/2}" effort="13" velocity="0.001"/>-->
     <limit lower="${-PI}" upper="${PI}" effort="100" velocity="1000"/>
   </joint>
 </xacro:macro>
@@ -120,12 +127,12 @@
 </xacro:macro>
 
 
-<xacro:patte nb_patte="1" pos_x="${d_x_boite_patte_ext}" pos_y="${-d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext-PI/2}"/>
-<xacro:patte nb_patte="2" pos_x="${d_x_boite_patte_centre}" pos_y="0.0" rot_z="0.0"/>
-<xacro:patte nb_patte="3" pos_x="${d_x_boite_patte_ext}" pos_y="${d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext}"/>
-<xacro:patte nb_patte="4" pos_x="${-d_x_boite_patte_ext}" pos_y="${-d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext + PI}"/>
-<xacro:patte nb_patte="5" pos_x="${-d_x_boite_patte_centre}" pos_y="0.0" rot_z="${PI}"/>
-<xacro:patte nb_patte="6" pos_x="${-d_x_boite_patte_ext}" pos_y="${d_y_boite_patte_ext}" rot_z="${- r_z_boite_patte_ext + PI}"/>
+<xacro:patte nb_patte="1" pos_x="${d_x_boite_patte_ext}" pos_y="${-d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext-PI/2}" color="noir"/>
+<xacro:patte nb_patte="2" pos_x="${d_x_boite_patte_centre}" pos_y="0.0" rot_z="0.0" color="noir"/>
+<xacro:patte nb_patte="3" pos_x="${d_x_boite_patte_ext}" pos_y="${d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext}" color="noir"/>
+<xacro:patte nb_patte="4" pos_x="${-d_x_boite_patte_ext}" pos_y="${-d_y_boite_patte_ext}" rot_z="${r_z_boite_patte_ext + PI}" color="noir"/>
+<xacro:patte nb_patte="5" pos_x="${-d_x_boite_patte_centre}" pos_y="0.0" rot_z="${PI}" color="noir"/>
+<xacro:patte nb_patte="6" pos_x="${-d_x_boite_patte_ext}" pos_y="${d_y_boite_patte_ext}" rot_z="${- r_z_boite_patte_ext + PI}" color="noir"/>
 
 
   <link name="test"/>

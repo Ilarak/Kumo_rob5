@@ -14,7 +14,10 @@ install(
     scripts/robot_control.py
     scripts/robot_control_sim.py
     scripts/Move.py
+    scripts/kalman_filter.py
+    scripts/kalman_robot_control.py
     launch/control_kumo.launch.py
+    launch/kalman_control_kumo.launch.py
     DESTINATION lib/${PROJECT_NAME}
   )
 

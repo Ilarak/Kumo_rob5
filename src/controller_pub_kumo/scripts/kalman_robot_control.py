@@ -31,6 +31,7 @@ class Commander(Node):
             10
         )
 
+        #self.pos = np.array([0,0,0,0], float)
         self.pos = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], float)
 
         self.pub_pos = self.create_publisher(Float64MultiArray, '/forward_position_controller/commands', 100)
@@ -54,17 +55,17 @@ class Commander(Node):
 
     def listener_kalman_callback(self, msg):
         max_value = 0.15
-        roll_kalman = msg.data[0]*math.pi/180
-        if roll_kalman >0.05:
+        roll_kalman = msg.data[0]*math.pi/180 -0.1
+        if roll_kalman >0.08:
             self.avancer.roll += 0.01
-        elif roll_kalman <-0.05:
+        elif roll_kalman <-0.08:
             self.avancer.roll -= 0.01
         self.avancer.roll = max(-max_value, min(max_value, self.avancer.roll))
 
         pitch_kalman = msg.data[1]*math.pi/180 + 0.1
-        if pitch_kalman >0.05:
+        if pitch_kalman >0.08:
             self.avancer.pitch += 0.01
-        elif pitch_kalman <-0.05:
+        elif pitch_kalman <-0.08:
             self.avancer.pitch -= 0.01
         self.avancer.pitch = max(-max_value, min(max_value, self.avancer.pitch))
         print("value start : ", roll_kalman, pitch_kalman)
@@ -72,29 +73,7 @@ class Commander(Node):
         
 
     def timer_callback(self):
-        if (self.message == 2):
-            self.time_avancer_droit = time.time()
-            self.avancer.incr_y = 5
-            self.Y,self.Z, self.pair1_avance = self.avancer.tourner_gauche(self.Y, self.Z, self.pair1_avance)
-            print("tourner à gauche")
-            #gauche
-        elif (self.message == 1):
-            self.time_avancer_droit = time.time()
-            self.avancer.incr_y = 5
-            self.Y,self.Z, self.pair1_avance = self.avancer.tourner_droite(self.Y, self.Z, self.pair1_avance)
-            print("tourner à droite")
-            #droite
-        else :
-            time_now = time.time()
-            print(self.time_avancer_droit-time_now)
-            if(time_now-self.time_avancer_droit>1.5):
-                self.avancer.incr_y = 10
-                print("speed augmenté")
-            self.Y,self.Z, self.pair1_avance = self.avancer.avancer(self.Y, self.Z, self.pair1_avance)
-        self.i +=1
-
-        #self.Y,self.Z, self.pair1_avance = self.avancer.avancer(self.Y, self.Z, self.pair1_avance)
-        #self.avancer.debout()
+        self.avancer.debout()
         self.pos = self.avancer.pos_ang
         pos_array = Float64MultiArray(data=self.pos) 
         self.pub_pos.publish(pos_array)

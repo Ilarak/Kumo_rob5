@@ -3,7 +3,6 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray
 import serial
-import time
 import math
 
 
@@ -19,9 +18,6 @@ class Communication(Node):
         )
         self.i=0
         self.subscription
-        # trop à gauche = - 
-        # trop haut = +
-        # trop haut = -
         self.arduino = serial.Serial(port="/dev/ttyUSB0", baudrate=115200, timeout=1, writeTimeout=1)
         self.offset = [20,0,400, #0-2
                        0,40,400,
@@ -41,7 +37,7 @@ class Communication(Node):
                 message+="#"+str(self.toutPin[i])+" P"+str((self.remap(msg.data[i])-self.offset[i]))+" "
 
         message+="T10"
-        #print(message)
+        print(message)
         self.arduino.write((message+'\r').encode())
         self.i+=1
 
@@ -65,10 +61,6 @@ def main(args=None):
 
     listener = Communication()
 
-    '''while(True):
-        listener.send_message()
-        time.sleep(2)
-    '''
     rclpy.spin(listener)
 
 if __name__ == '__main__':
