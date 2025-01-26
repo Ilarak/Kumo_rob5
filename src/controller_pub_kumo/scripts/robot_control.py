@@ -36,7 +36,7 @@ class Communication(Node):
             else:
                 message+="#"+str(self.toutPin[i])+" P"+str((self.remap(msg.data[i])-self.offset[i]))+" "
 
-        message+="T10"
+        message+="T50"
         print(message)
         self.arduino.write((message+'\r').encode())
         self.i+=1
